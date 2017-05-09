@@ -12,7 +12,9 @@ const todos = [
   },
   {
     _id: new ObjectID(),
-    text: "Second test todo"
+    text: "Second test todo",
+    completed: true,
+    completedAt: 333
   }
 ];
 
@@ -140,5 +142,51 @@ describe("DELETE /todos/:id", () => {
 
   it("should return 404 if ObjectID is invalid", done => {
     request(app).delete("/todos/123").expect(404).end(done);
+  });
+});
+
+describe("PATCH /todos/:id", () => {
+  it("should update the todo", done => {
+    // grab id of first item
+    let hexID = todos[0]._id.toHexString();
+    let text = "Changed text";
+    // update the text, set completed == true
+    request(app)
+      .patch(`/todos/${hexID}`)
+      .send({
+        text: text,
+        completed: true
+      })
+      .expect(200)
+      .expect(res => {
+        expect(res.body.todo.text).toBe(text);
+        expect(res.body.todo.completed).toBe(true);
+        expect(res.body.todo.completedAt).toBeA("number");
+      })
+      .end(done);
+    // 200
+    // text is changed, completed is true, completedAt is a number .toBeA(number)
+  });
+
+  it("should clear completedAt when todo is not completed", done => {
+    // grab id of second todo item
+    let hexID = todos[1]._id.toHexString();
+    let text = "Updated text";
+    request(app)
+      .patch(`/todos/${hexID}`)
+      .send({
+        text,
+        completed: false
+      })
+      .expect(200)
+      .expect(res => {
+        expect(res.body.todo.text).toBe(text);
+        expect(res.body.todo.completed).toBe(false);
+        expect(res.body.todo.completedAt).toBe(null);
+      })
+      .end(done);
+    //update text, set completed to false,
+    // 200
+    // text is changed, completed false, completedAt is null .toNotExist
   });
 });
