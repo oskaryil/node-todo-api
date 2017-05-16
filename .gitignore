@@ -24,5 +24,8 @@ jspm_packages/
 # dotenv environment variables file
 .env
 
+#config files
+server/config/config.json
+
 #playground files
 playground/
