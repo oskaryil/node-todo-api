@@ -14,6 +14,32 @@ let app = express();
 const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Add headers
+app.use(function(req, res, next) {
+  // Website you wish to allow to connect
+  res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+
+  // Request methods you wish to allow
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, OPTIONS, PUT, PATCH, DELETE"
+  );
+
+  // Request headers you wish to allow
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "X-Requested-With,content-type"
+  );
+
+  // Set to true if you need the website to include cookies in the requests sent
+  // to the API (e.g. in case you use sessions)
+  res.setHeader("Access-Control-Allow-Credentials", true);
+
+  // Pass to next layer of middleware
+  next();
+});
 
 app.post("/todos", authenticate, (req, res) => {
   let todo = new Todo({
@@ -144,6 +170,7 @@ app.patch("/todos/:id", authenticate, (req, res) => {
 // POST /users
 app.post("/users", (req, res) => {
   let body = _.pick(req.body, ["email", "password"]);
+  console.log(body);
   let user = new User(body);
   user
     .save()
